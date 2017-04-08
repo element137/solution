@@ -1,0 +1,76 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>  
+#include<string>  
+#include<vector>  
+using namespace std;
+//判断left和right是不是同一种单词的循环词
+bool IsCirStr(string left, string right)
+{
+	if (left == right)
+		return true;
+
+	size_t subRight = 0;
+	size_t subLeft = 0;
+	bool flag = true;
+
+	for (size_t idx = 0; idx < left.length() - 1; idx++)
+	{
+		flag = true;
+		for (subRight = idx + 1, subLeft = 0; subRight < left.length(); subRight++, subLeft++)
+		{
+			if (left[subLeft] != right[subRight])
+			{
+				flag = false;
+				break;
+			}
+		}
+		if (flag)
+		{
+			for (subRight = 0; subRight <= idx; subRight++, subLeft++)
+			{
+				if (left[subLeft] != right[subRight])
+					flag = false;
+			}
+		}
+		if (flag)
+			return true;
+	}
+	return false;
+}
+
+int main()
+{
+	int n = 0;
+	vector<string> strList;
+	vector<bool> NewWord;
+	cin >> n;//单词个数
+	for (int idx = 0; idx < n; idx++)
+	{
+		string inFromUser;//输入单词
+		cin >> inFromUser;
+		strList.push_back(inFromUser);//存入strList
+		NewWord.push_back(true);  //表示是和其他单词没关系的一种单词,默认是新单词
+	}
+	int kinds = 1;//至少有一种单词
+	for (int curWord = 1; curWord < n; curWord++)//顺strList遍历
+	{
+		for (int wordIdx = 0; wordIdx < curWord; wordIdx++)//每次把curWord和前面所有词比较
+		{
+			if (NewWord[curWord] == true && strList[curWord].length() == strList[wordIdx].length())
+			{//curWord不是某单词同类词并且curWord和wordIdx长度相等才进入
+
+				if (IsCirStr(strList[curWord], strList[wordIdx]))//判断是不是同一种词
+				{
+					//标记wordIdx指向的词是curWord的循环单词，标为false放止重复计数
+					NewWord[curWord] = false;
+					break;
+				}
+			}
+		}
+		if (NewWord[curWord] == true)
+			kinds++;//统计单词种类
+	}
+	cout << kinds << endl;
+	system("pause");
+	return 0;
+}
