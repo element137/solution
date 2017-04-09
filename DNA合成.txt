@@ -1,0 +1,26 @@
+#include <iostream>
+using namespace std;
+#include <string>
+
+int main()
+{
+    string list1 = "";
+    string list2 = "";
+    
+    cin >> list1 >>list2;
+    if (list1.length() != list2.length()){
+        return -1;
+    }
+    
+    int times;
+    for (int idx = 0; idx < list1.length(); ++idx){
+        if ((list1[idx] == 'T' && list2[idx] == 'A') ||
+           (list1[idx] == 'A' && list2[idx] == 'T') ||
+           (list1[idx] == 'C' && list2[idx] == 'G') ||
+           (list1[idx] == 'G' && list2[idx] == 'C'))
+            continue;
+        times++;
+    }
+    cout << times <<endl;
+    return 0;
+}

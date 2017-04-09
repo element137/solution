@@ -1,0 +1,40 @@
+#include <string>  
+#include <iostream>  
+#include <vector>  
+using namespace std;
+int main()
+{
+	int n, ret = 0;
+	vector<string> twords;
+	vector<bool> checks;//判断是否已属于某种循环单词  
+	cin >> n;
+	for (int i = 0; i < n; i++)
+	{
+		string word;
+		cin >> word;
+		twords.push_back(word);
+		checks.push_back(false);
+	}
+	for (int j = 0; j < n; j++)
+	{
+		if (!checks[j])
+		{
+			string tt;
+			tt = twords[j] + twords[j];
+			for (int k = j + 1; k < n; k++)
+			{
+				if (!checks[k])
+				{
+					if (tt.find(twords[k]) != string::npos && twords[k].length() == twords[j].length())
+					{//tt中能找到twords[k] 并且长度相等，就是循环单词
+						checks[k] = true;
+					}
+				}
+			}
+			ret++;
+		}
+	}
+	cout << ret << endl;
+	system("pause");
+	return 0;
+}
