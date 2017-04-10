@@ -1,0 +1,42 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <cmath>
+using namespace std;
+ 
+int main()
+{
+    int minSize = 0;
+    int maxSize = 0;
+    int num = 0;
+    int fishsize = 0;
+    int count = 0;
+    bool denial[1001] = { false };
+ 
+    cin >> minSize >> maxSize >> num;
+    for (int idx = 1; idx <= num; idx++)
+    {
+        cin >> fishsize;
+        if (fishsize >= 1 && fishsize <= 1000)
+        {
+            //情况1：标记会被已存在鱼吃掉的位置
+            for (int denIdx = 2 * fishsize; denIdx <= maxSize && denIdx <= 10 * fishsize; denIdx++)
+                denial[denIdx] = true;
+            //情况2：标记会吃掉已存在鱼的位置
+            for (int denIdx = fishsize / 2; denIdx >= minSize && denIdx >= ceil(fishsize / 10.0); denIdx--)
+                denial[denIdx] = true;
+        }
+        else//鱼大小不符合标准
+        {
+            cout << "input error" << endl;
+            return -1;
+        }
+    }
+    //统计没有被标记的位置的数量
+    for (int i = minSize; i <= maxSize; i++)
+    {
+        if (!denial[i])
+            count++;
+    }
+    cout << count;
+    return 0;
+}
