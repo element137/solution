@@ -1,0 +1,33 @@
+/*
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+    TreeNode(int x) :
+            val(x), left(NULL), right(NULL) {
+    }
+};*/
+ 
+class TreePrinter {
+public:
+    vector<vector<int> > printTree(TreeNode* root) {
+        // write code here
+         queue<TreeNode*> que, next;
+        vector<vector<int>> res;
+        TreeNode* cur;
+        que.push(root);
+        while(que.size()>0){
+            vector<int> level;
+            while(que.size()>0){
+                cur = que.front();
+                que.pop();
+                level.push_back(cur->val);
+                if(cur->left) next.push(cur->left);
+                if(cur->right) next.push(cur->right);               
+            }
+                que.swap(next);
+                res.push_back(level);
+        }
+        return res;
+    }
+};
