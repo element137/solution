@@ -1,0 +1,27 @@
+int SortAge(int ages[], int length)
+{
+	if (ages == NULL || length <= 0)
+		return -1;
+
+	const int oldestage = 99;
+	int times[oldestage + 1] = { 0 };
+
+	for (int idx = 0; idx < length; ++idx)
+	{
+		int age = ages[idx];
+		if (age < 0 || age > oldestage)
+			return -1;
+		times[age]++;
+	}
+	int idx = 0;
+	for (int i = 0; i < oldestage; ++i)
+	{
+		for (int j = 0; j < times[i]; ++j)
+		{
+			ages[idx] = i;
+			idx++;
+		}
+	}
+
+	return 0;
+}
