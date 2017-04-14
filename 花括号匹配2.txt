@@ -1,0 +1,22 @@
+int main ()
+{
+     int ch = 0;
+     int count = 0;
+     while((ch=getchar())!=EOF)
+     {
+          if((ch == '}')&& count == 0)
+          {
+              printf("not matched\n");
+              return 0;  //如果遇到}会直接在内部停止，有缺陷
+          }
+          if(ch == '{')
+              count++;
+          else if(ch == '}')
+              count--;
+     }
+     if (count == 0)
+          printf("matched\n");
+     else
+          printf("not matched\n");
+     return 0;
+}
