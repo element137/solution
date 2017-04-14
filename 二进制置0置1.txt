@@ -1,0 +1,32 @@
+void bit_to_zero(int num, int n)
+{
+     num = num&~(1 << (n - 1));
+     printf("%d ", num);
+}
+void bit_to_one(int num, int n)
+{
+     num = num | (1 << (n - 1));
+     printf("%d ", num);
+}
+int main()
+{
+     int num = 0;
+     int i = 0;
+     int n = 0;
+     printf("输入一个整数：");
+     scanf("%d", &num);
+     printf("输入要操作的位数：");
+     scanf("%d", &n);
+flag:
+     printf("0.置0\n");
+     printf("1.置1\n");
+     printf("选择：");
+     scanf("%d", &i);
+     switch (i)
+     {
+     case 0:bit_to_zero(num, n); break;
+     case 1:bit_to_one(num, n); break;
+     default:goto flag;
+     }
+     return 0;
+}
