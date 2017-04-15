@@ -1,0 +1,141 @@
+
+template <class K, class T>
+struct BSTNode{
+	struct BSTNode *_pLeft;
+	struct BSTNode *_pRight;
+	K _key;
+	T _value;
+};
+
+template <class K, class T>
+class BinarySearchTree{
+	typedef struct BSTNode<K, T> Node;
+public:
+	BinarySearchTree()
+		:_pRoot(NULL)
+	{}
+
+	bool Find_Rec(Node *pRoot, const K& key)
+	{
+		if (pRoot == NULL)
+			return false;
+		if (pRoot->_key > key)
+		{
+			Find_Rec(pRoot->_pLeft, key)
+		}
+		else if (pRoot->_key < key)
+		{
+			Find_Rec(pRoot->_pRight, key);
+		}
+		else if (pRoot->_key == key)
+			return true;
+	}
+	
+	bool Find(const K& key)
+	{
+		if (_pRoot == NULL)
+			return false;
+
+		Node *pCur = _pRoot;
+		while (pCur)
+		{
+			if (pCur->_key > key)
+			{
+				pCur = pCur->_pLeft;
+			}
+			else if (pCur->_key < key)
+			{
+				pCur = pCur->_pRight;
+			}
+			else
+				return true;
+		}
+
+		return false;
+	}
+
+	
+
+
+	bool Remove(const K& key)
+	{
+		if (_pRoot == NULL)
+			return false;
+		if (_pRoot->_pLeft == NULL && _pRoot ->_pRight == NULL && _pRoot->_key == key)
+		{
+			delete _pRoot;
+			_pRoot = NULL;
+			return true;
+		}
+		Node *pCur = _pRoot;
+		Node* pParent = NULL;
+		while (pCur)
+		{
+			if (pCur->_key > key)
+			{
+				pParent = pCur;
+				pCur = pCur->_pLeft;
+			}
+			else if (pCur->_key < key)
+			{
+				pParent = pCur;
+				pCur = pCur->_pRight;
+			}
+			else
+				break;
+		}
+		//找到了
+		if (pCur)
+		{
+			if (pCur->_pLeft == NULL)
+			{
+				if (pCur != _pRoot)
+				{
+					if (pCur == pParent->_pLeft)
+						pParent->_pLeft = pCur->_pRight;
+					else
+						pParent->_pRight = pCur->_pRight;
+
+					delete pCur;
+				}
+				else
+					_pRoot = pCur->_pRight;
+			}
+			else if (pCur->_pRight == NULL)
+			{
+				if (pCur != _pRoot)
+				{
+					if (pCur == pParent->_pLeft)
+						pParent->_pLeft = pCur->_pLeft;
+					else
+						pParent->_pRight = pCur->_pLeft;
+				}
+				else
+					_pRoot = pCur->_pLeft;
+			}
+			else
+			{//左右孩子都存在
+				//右子树找最小b
+				Node *firstInorder = pCur->_pRight;
+				while (firstInorder->_pLeft)
+				{
+					pParent = firstInorder;
+					firstInorder = firstInorder->_pLeft;
+				}
+				pCur->_key = firstInorder->_key;
+				pCur->_value = firstInorder->_value;
+
+				if (_pRoot->_pRight == firstInorder)
+					pCur->_pRight = firstInorder->_pRight;
+				else
+					pParent->_pLeft = firstInorder->_pRight;
+
+				pCur = firstInorder;
+			}
+			delete pCur;
+			return true;
+		}
+	}
+private:
+	Node* _pRoot;
+};
