@@ -1,0 +1,129 @@
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <assert.h>
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+typedef struct node
+{
+	int _data;
+	struct node* next;   		
+}node,*pnode,**ppnode;
+
+
+void list_init(ppnode _h)
+{
+	assert(_h);
+	(*_h) = (pnode)malloc(sizeof(node));
+	(*_h)->next = NULL;
+}
+
+void list_push(pnode _h ,int _data)
+{
+	assert(_h);
+	pnode temp = (pnode)malloc(sizeof(node));
+	if(temp)
+	{
+		temp->_data = _data;
+		temp->next = _h->next;
+		_h->next = temp;
+	}
+}
+	
+int empty(pnode _h)
+{
+ 	return _h->next == NULL ? 1 : 0; 
+}
+
+void list_print(pnode _h)
+{
+	if(!empty(_h))
+	{
+		pnode temp = _h->next;
+		while(temp)
+		{
+			printf("%d ", temp->_data);
+			temp = temp->next;
+		}
+	}
+	printf("\n");
+}
+
+void list_pop(pnode _h , int* data)
+{
+	assert(_h);
+	if(!empty(_h))
+	{
+		pnode temp = _h->next;
+		_h->next = temp->next;
+		*data = temp->_data;
+		free(temp);
+	}
+}
+
+void list_destroy(pnode _h)
+{
+	assert(_h);
+	while(!empty(_h))
+	{
+		int data;
+		list_pop(_h, &data);
+	}
+	free(_h);
+	_h = NULL;
+}
+
+// 生产者线程
+void * producer(void* arg)
+{
+	pnode h = (pnode)arg;
+	while(1)
+	{
+		pthread_mutex_lock(&mutex);
+		int data = rand()%100;
+		list_push(h, data);
+		pthread_mutex_unlock(&mutex);
+		printf("prodecer sucess %d\n", data);
+		pthread_cond_signal(&cond);
+		sleep(1);
+	}
+}
+
+// 消费者线程 
+void * consumer(void* arg)
+{
+	pnode h = (pnode)arg;
+	while(1)
+	{
+		int data;
+		pthread_mutex_lock(&mutex);
+		if(empty(h))
+		{
+			pthread_cond_wait(&cond, &mutex);//释放mutex 挂起condi被唤醒时候 重新获得mutex 
+		}
+		list_pop(h, &data);
+		pthread_mutex_unlock(&mutex);
+		printf("consumer sucess  %d \n", data);
+	}
+}
+
+int main()
+{
+	pnode p;
+	list_init(&p);
+
+	pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&cond, NULL);
+	pthread_t id1, id2;
+	pthread_create(&id1, NULL, producer, (void*)p);
+	pthread_create(&id2, NULL, consumer, (void*)p);
+
+	pthread_join(id1, NULL);	
+	pthread_join(id2, NULL);	
+
+	pthread_mutex_destroy(&mutex);
+	pthread_cond_destroy(&cond);
+	return 0;
+}
