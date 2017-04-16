@@ -1,0 +1,25 @@
+void Insert_Rec(Node& pRoot, K key, V value)
+	{
+		if (pRoot == NULL)
+		{
+			pRoot = new Node(key, value);
+			return;
+		}
+
+
+		if (pRoot->_key > key)
+		{
+			Insert_Rec(pRoot->_pLeft, key, value);
+
+		}		
+		else if (pRoot->_key < key)
+		{
+			Insert_Rec(pRoot->_pRight, key, value);
+
+		}
+		else if (pRoot->_key == key)
+		{
+			return;
+		}
+
+	}
