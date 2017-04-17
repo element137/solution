@@ -1,0 +1,190 @@
+#define _CRT_SECURE_NO_WARNINGS 
+#include <iostream>
+using namespace std;
+#include <string>
+#include <fstream>
+#include <iomanip>
+#include <stdlib.h>
+#include <conio.h>
+
+
+#define NUM1 128
+#define NUM2 50
+
+class CBook{
+public:
+	CBook()
+	{}
+
+	CBook(char *cName, char *cIsbn, char* cPrice, char* cAuthor)	
+	{
+		strcpy(_cName, cName);
+		strcpy(_cIsbn, cIsbn);
+		strcpy(_cPrice, cPrice);
+		strcpy(_cAuthor, cAuthor);
+	}
+	~CBook()
+	{}
+public:
+	char*  GetName()
+	{
+		return _cName;
+	}
+
+	void  SetName(char* cName)
+	{
+		strcpy(_cName, cName);
+	}
+
+	char*  GetIsbn()
+	{
+		return _cIsbn;
+	}
+
+	void  SetIsbn(char* cIsbn)
+	{
+		strcpy(_cIsbn, cIsbn);
+	}
+
+	char*  GetPrice()
+	{
+		return _cPrice;
+	}
+
+	void  SetPrice(char* cPrice)
+	{
+		strcpy(_cPrice, cPrice);
+	}
+
+	char*  GetAuthor()
+	{
+		return _cAuthor;
+	}
+
+	void  SetAuthor(char* cAuthor)
+	{
+		strcpy(_cAuthor, cAuthor);
+	}
+public:
+
+	void WriteData()
+	{
+		ofstream ofile;
+		ofile.open("book.dat", ios::binary | ios::app);
+		try
+		{
+			ofile.write(_cName, NUM1);
+			ofile.write(_cIsbn, NUM1);
+			ofile.write(_cPrice, NUM2);
+			ofile.write(_cAuthor, NUM2);
+		}
+		catch (...)
+		{
+			throw "file error occured";
+			ofile.close();
+		}
+		ofile.close();
+	}
+	void DeleteData(int iCount)
+	{
+		long respos;
+		int iDataCount = 0;
+		fstream file;
+		fstream tmpfile;
+		ofstream ofile;
+		char cTempBuf[NUM1 + NUM1 + NUM2 + NUM2];
+		file.open("book.dat", ios::binary | ios::in | ios::out);
+		tmpfile.open("temp.dat", ios::binary | ios::in | ios::out | ios::trunc);
+		file.seekg(0, ios::end);
+		respos = (long)file.tellg();
+		iDataCount = respos / (NUM1 + NUM1 + NUM2 + NUM2);
+
+		if (iCount < 0 && iCount > iDataCount)
+			throw"input number error";
+		else
+		{
+			file.seekg((iCount)*(NUM1+NUM1+NUM2+NUM2), ios::beg);
+			for (int j = 0; j < (iDataCount - iCount); j++)
+			{
+				memset(cTempBuf, 0, NUM1 + NUM1 + NUM2 + NUM2);
+				file.read(cTempBuf, NUM1 + NUM1 + NUM2 + NUM2);
+				tmpfile.write(cTempBuf, NUM1 + NUM1 + NUM2 + NUM2);
+			}
+
+			file.close();
+			tmpfile.seekg(0, ios::beg);
+			ofile.open("book.dat");
+			ofile.seekp((iCount - 1)*(NUM1 + NUM1 + NUM2 + NUM2), ios::beg);
+			for (int j = 0; j < (iDataCount - iCount); j++)
+			{
+				memset(cTempBuf, 0, NUM1 + NUM1 + NUM2 + NUM2);
+				tmpfile.read(cTempBuf, NUM1 + NUM1 + NUM2 + NUM2);
+				ofile.write(cTempBuf, NUM1 + NUM1 + NUM2 + NUM2);
+			}
+		}
+		tmpfile.close();
+		ofile.close();
+		remove("temp.dat");
+	}
+	void GetBookFromFile(int iCount)
+	{
+		char cName[NUM1];
+		char cIsbn[NUM1];
+		char cPrice[NUM2];
+		char cAuthor[NUM2];
+
+		ifstream ifile;
+		ifile.open("book.dat", ios::binary);
+		try
+		{
+			ifile.seekg(iCount*(NUM1 + NUM1 + NUM2 + NUM2), ios::beg);
+			ifile.read(cName, NUM1);
+			if (ifile.tellg() > 0)
+			{
+				strncpy(_cName, cName, NUM1);
+			}
+			ifile.read(cIsbn, NUM1);
+			if (ifile.tellg() > 0)
+			{
+				strncpy(_cIsbn, cIsbn, NUM1);
+			}
+			ifile.read(cPrice, NUM2);
+			if (ifile.tellg() > 0)
+			{
+				strncpy(_cPrice, cPrice, NUM2);
+			}
+			ifile.read(cAuthor, NUM2);
+			if (ifile.tellg() > 0)
+			{
+				strncpy(_cAuthor, cAuthor, NUM2);
+			}
+		}
+		catch (...)
+		{
+			throw"file error occurred";
+			ifile.close();
+		}
+		ifile.close();
+	}
+private:
+	char _cName[NUM1];
+	char _cIsbn[NUM1];
+	char _cPrice[NUM2];
+	char _cAuthor[NUM2];
+};
+
+#define CMD_COLS 80
+#define CMD_LINES 25
+
+void SetScreenGrid();//设置屏幕显示的行数和列数
+void ClearScreen();//清除屏幕信息
+void SetSysCaption(const char* pText);//设置窗体标题栏
+void ShowWelcome();//显示欢迎信息
+void ShowRootMenu();//显示开始菜单
+void WaitView(int iCurPage);//浏览数据时等待用户操作
+void WaitUser();//等待用户操作
+void GuideInput();//使用向导添加图书信息
+int GetSelect();//获得用户菜单选择
+long GetFileLength(ifstream& ifs);//获取文件长度
+void ViewData(int iSelPage = 1);//浏览所有图书记录
+void DeleteBookFromFile();//在文件中产生图书信息
