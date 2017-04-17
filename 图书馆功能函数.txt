@@ -1,0 +1,133 @@
+#include "Book.h"
+
+//添加新书
+void GuideInput()
+{
+	char inName[NUM1];
+	char inIsbn[NUM1];
+	char inPrice[NUM2];
+	char inAuthor[NUM2];
+
+	cout << "enter book name:" << endl;
+	cin >> inName;
+	cout << "enter ISBN:" << endl;
+	cin >> inIsbn;
+	cout << "enter book price:" << endl;
+	cin >> inPrice;
+	cout << "enter book author:" << endl;
+	cin >> inAuthor;
+
+	CBook book(inName, inIsbn, inPrice, inAuthor);
+	book.WriteData();
+	cout << "Write Finish" << endl;
+	WaitUser();
+}
+
+//浏览
+void ViewData(int iSelPage)
+{
+	int iPage = 0;
+	int iCurPage = 0;
+	int iDataCount = 0;
+	char inName[NUM1];
+	char inIsbn[NUM1];
+	char price[NUM2];
+	char inAuthor[NUM2];
+
+	bool bIndex = false;
+	int iFileLength;
+	iCurPage = iSelPage;
+	ifstream ifile;
+
+	ifile.open("book.dat", ios::binary);
+	iFileLength = GetFileLength(ifile);
+	iDataCount = iFileLength / (NUM1 + NUM1 + NUM2 + NUM2);
+	if (iDataCount >= 1)
+		bIndex = true;
+
+	iPage = iDataCount / 20 + 1;
+	ClearScreen();
+	cout << "共有记录" << iDataCount << " ";
+	cout << "共有页数" << iPage << " ";
+	cout << "当前页数" << iCurPage << " ";
+	cout << "n 显示下一页 m 返回" << endl;
+	cout << setw(5) << "Index";
+	cout << setw(22) << "Name" << setw(22) << "Isbn";
+	cout << setw(15) << "Price" << setw(15) << "Author";
+	cout << endl;
+
+	try
+	{
+		//根据图书记录编号查找在文件中的位置
+		ifile.seekg((iCurPage - 1) * 20 * (NUM1 + NUM1 + NUM2 + NUM2), ios::beg);
+		if (!ifile.fail())
+		{
+			for (int i = 1; i < 2; ++i)
+			{
+				memset(inName, 0, 128);
+				memset(inIsbn, 0, 128);
+				memset(price, 0, 50);
+				memset(inAuthor, 0, 50);
+
+				if (bIndex)
+					cout << setw(3) << ((iCurPage - 1) * 20 + i);
+				ifile.read(inName, NUM1);
+				cout << setw(24) << inName;
+				ifile.read(inIsbn, NUM1);
+				cout << setw(24) << inIsbn;
+				ifile.read(price, NUM2);
+				cout << setw(12) << price;
+				ifile.read(inAuthor, NUM2);
+				cout << setw(12) << inAuthor;
+				cout << endl;
+
+				if (ifile.tellg() < 0)
+					bIndex = false;
+				else
+					bIndex = true;
+			}
+		}
+	}
+	catch (...)
+	{
+		cout << "throw file exception" << endl;
+		throw "file error occurred";
+		ifile.close();
+	}
+
+	if (iCurPage < iPage)
+		iCurPage++;
+
+	//不同
+	WaitView(iCurPage);
+	ifile.close();
+}
+
+
+long GetFileLength(ifstream& ifs)
+{
+	long tmppos;
+	long respos;
+	tmppos = (long)ifs.tellg();
+	ifs.seekg(0, ios::end);
+	respos = (long)ifs.tellg();
+	ifs.seekg(tmppos, ios::beg);
+	return respos;
+}
+
+
+//删除模块
+
+void DeleteBookFromFile()
+{
+	int iDelCount;
+	cout << "Input delete index" << endl;
+	cin >> iDelCount;
+	CBook tmpbook;
+	tmpbook.DeleteData(iDelCount);
+	cout << "Delete FInish" << endl;
+	WaitUser();
+}
+
+
+
