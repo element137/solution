@@ -1,0 +1,43 @@
+class String
+{
+public:
+	String(char* pStr = "")
+		:_pStr( new char[strlen(pStr) + 1])
+	{
+		if (NULL == pStr)
+		{
+			_pStr = new char[1];
+			_pStr = '\0';
+		}
+		else
+		{
+			strcpy(_pStr, pStr);
+		}
+	}
+	String(const String& s)
+		:_pStr(new char[strlen(s._pStr) + 1])
+	{
+		strcpy(_pStr, s._pStr);
+	}
+	String& operator=(const String& s)
+	{
+		if (this != &s)
+		{
+			char* Temp = new char[strlen(s._pStr) + 1];
+			strcpy(Temp, s._pStr);
+			delete[] _pStr;
+			_pStr = Temp;
+		}
+		return *this;
+	}
+	~String()
+	{
+		if (NULL != _pStr)
+		{
+			delete[] _pStr;
+			_pStr = NULL;
+		}
+	}
+private:
+	char* _pStr;
+};
