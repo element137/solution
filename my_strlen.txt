@@ -1,0 +1,10 @@
+int my_strlen(const char* src)
+{
+	int count = 0;
+	assert(src != NULL);
+	while (*src++ != '\0')
+	{
+		count++;
+	}
+	return count;
+}
