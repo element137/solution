@@ -1,0 +1,15 @@
+char* my_strcat(char* dst, const char* src)
+{
+	char *pStr = dst;
+	assert(dst);
+	assert(src);
+
+	while (*pStr)
+		pStr++;
+
+	while (*pStr++ = *src++)
+		;
+	
+	return dst;
+
+}
