@@ -1,0 +1,9 @@
+char* my_strcpy(char *dest, const char *src)
+{
+	char *ret = dest;
+	assert(dest);
+	assert(src);
+	while (*ret++ = *src++)
+		;
+	return dest;
+}
