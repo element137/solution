@@ -1,0 +1,170 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+using namespace std;
+
+class Date
+{
+public:
+	Date(int year = 1990, int month = 1, int day = 1)
+		:_year(year)
+		, _month(month)
+		, _day(day)
+	{
+		if (!((year > 0) &&
+			(month > 0 && month < 13) &&
+			(day > 0 && day <= GetMonthInDays(year, month))
+			))
+		{
+			_year = 1990;
+			_month = 1;
+			_day = 1;	
+		}
+	}
+	 
+	Date operator+(int days)  // 日期+n天后是那一天
+	{
+		if (days < 0)
+		{
+			return *this - (0 - days);
+		}
+		Date temp(*this);
+		temp._day += days;
+
+		int daysInMonth = 0;
+		while ( temp._day > (daysInMonth = GetMonthInDays(temp._year, temp._month)))
+		{
+			temp._day -= daysInMonth;
+			if (12 == temp._month)
+			{
+				temp._year += 1;
+				temp._month = 1;
+			}
+			else
+			{
+				temp._month += 1;
+			}
+		}
+		return temp;
+	}
+
+	Date operator-(int days)// 日期-n天后是那一天
+	{
+		if (days < 0)
+		{
+			return *this + (0 - days);
+		}
+
+		Date temp(*this);
+		temp._day -= days;
+		
+		while (temp._day <= 0)
+		{
+			if (1 == temp._month)
+			{
+				temp._month = 12;
+				temp._year -= 1;
+			}
+			else
+			{
+				temp._month -= 1;
+			}
+			temp._day += GetMonthInDays(temp._year, temp._month);
+		}
+		return temp;
+	}
+
+	Date& operator++() //前置++
+	{
+		*this = *this + 1;
+		return *this;
+	}
+	Date operator++(int) //后置++
+	{
+		Date temp(*this);
+		*this = *this + 1;
+		return temp;
+	}
+	Date& operator--()
+	{
+		*this = *this - 1;
+		return *this;
+	}
+	Date operator--(int)
+	{
+		Date temp(*this);
+		*this = *this - 1;
+		return temp;
+	}
+	bool operator<(const Date& d)
+	{
+		if ( (_year < d._year) ||
+			(_year == d._year && _month < d._month) ||
+			(_year == d._year && _month == d._month && _day < d._day )
+			)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	bool operator==(const Date& d)
+	{
+		return ((_year == d._year) &&
+			(_month == d._month) &&
+			(_day == d._day));
+	}
+	bool operator>(const Date& d)
+	{
+		if (*this<d || *this == d)
+		{
+			return false;
+		}
+		return true;
+	}
+	int operator-(const Date& d)
+	{
+		Date maxDate(*this);
+		Date minDate(d);
+		if (maxDate < minDate)
+		{
+			std::swap(minDate, maxDate);
+		}
+		int count = 0;
+		while (minDate < maxDate)
+		{
+			++minDate;
+			count++;
+		}
+		return count;
+	}
+
+	bool IsLeapYear(int year)//判断闰年
+	{
+		if ((0 == year%4 && 0 != year%100) ||
+			(0 == year%400)
+			)
+		{
+			return true;
+		}
+		return false;
+	}
+	int GetMonthInDays(int year,int month)
+	{
+		int days[] {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+		if (IsLeapYear(year) && 2 == month)
+		{
+			days[month]++;
+		}
+		return days[month];
+	}
+
+	friend ostream& operator<<(ostream& _cout, const Date& d)
+	{
+		cout << d._year << "-" << d._month << "-" << d._day;
+		return _cout;
+	}
+private:
+	int _year;
+	int _month;
+	int _day;
+};
