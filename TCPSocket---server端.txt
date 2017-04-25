@@ -1,0 +1,143 @@
+import java.io.*;
+import java.net.*;
+import java.util.*;
+public class Server {
+    public static Vector<User_Info> UserList;
+    private static int UserCount = 0;
+    public static void main(String[] args){
+        try{
+            UserList = new Vector();
+            String clientSentence ;
+            String responseSentence;
+            ServerSocket welcomeSocket = new ServerSocket(6789);
+            System.out.println("Waitting connect.....");
+            Socket connectionSocket = welcomeSocket.accept();//等待连接
+            System.out.println("Client connect Success. ip:"+connectionSocket.getInetAddress().getHostAddress());
+            BufferedReader InFromClient =
+                    new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+            DataOutputStream OutToClient =
+                    new DataOutputStream(connectionSocket.getOutputStream());
+            while (true)
+            {
+                clientSentence = InFromClient.readLine();//接收Client发来的信息
+                System.out.println("client:"+clientSentence);//Debug ! ! !
+                //对Client消息进行处理
+                int flag = StrDivide(clientSentence);
+                if (-1 == flag)
+                {
+                    responseSentence = "300 Message format error";
+                    OutToClient.writeBytes(responseSentence+ '\n');//发给Clinet
+                    System.out.println(responseSentence);//Debug ! ! !
+                    continue;
+                }
+                StringTokenizer divide = new StringTokenizer(clientSentence, " ");//divide String
+                divide.nextToken();//Get Command
+                String sname = divide.nextToken();//Get Username
+                switch (flag)
+                {
+                    case 1://getcourse
+                        System.out.println(sname);//Debug ! ! !
+                        if (exitUser(sname))
+                        {
+                            responseSentence = "200 OK.";
+                            OutToClient.writeBytes(responseSentence+'\n');
+                            int idx = 0;
+                            for (;!UserList.elementAt(idx).sName.equals(sname);++idx)
+                                ;
+                            int courseIdx = 0;
+                            for (int j = 0; j < UserList.elementAt(idx).courseNum; ++j)
+                            {
+                                responseSentence = UserList.elementAt(idx).sCourse[courseIdx++];
+                                OutToClient.writeBytes(responseSentence+'\n');
+                            }
+                            responseSentence = ".";
+                            OutToClient.writeBytes(responseSentence+'\n');
+                        }//user_exist
+                        else {
+                            responseSentence = "401 not exist";
+                            OutToClient.writeBytes(responseSentence+ '\n');//发给Clinet
+                        }//not_exist
+                        break;
+                    case 2://setcourse
+                        if (exitUser(sname))
+                        {
+                            responseSentence = "301 User exists";
+                            OutToClient.writeBytes(responseSentence+'\n');
+                            System.out.println("ToClient> "+responseSentence);//Debug ! ! !
+                        }
+                        else
+                        {
+                            responseSentence = "200 OK. Please send course name.";
+                            OutToClient.writeBytes(responseSentence+'\n');
+                            System.out.println("ToClient> "+responseSentence);//Debug ! ! !
+                            UserList.addElement(new User_Info(sname));
+                           int idx = 0;
+                           for (;!(UserList.elementAt(idx).sName.equals(sname)); ++idx)
+                               ;
+                            int courseIdx = 0;
+                            while (!(clientSentence= InFromClient.readLine()).equals("."))
+                            {
+                                UserList.elementAt(idx).sCourse[courseIdx++] = clientSentence;
+                                System.out.println("Save Course Name : "+clientSentence);
+                                UserList.elementAt(idx).courseNum++;
+                            }
+                        }
+                        break;
+                    case 3://shutdown
+                        if(sname.equals("admin")) {
+                            responseSentence = "200 OK. Server Quit.";
+                            OutToClient.writeBytes(responseSentence + '\n');
+                            connectionSocket.close();
+                            return;
+                        }
+                        OutToClient.writeBytes("201 User not allowed to execute this command.\n");
+                        break;
+                    default:
+                        responseSentence = "300 Message format error";
+                        OutToClient.writeBytes(responseSentence+ '\n');//发给Clinet
+                        System.out.println("ToClient> "+responseSentence);//Debug ! ! !
+                        break;
+                }//end_switch
+            }//end_while
+        }//try
+        catch(IOException e){
+            System.out.println(e);
+        }
+    }//main
+    public static boolean exitUser(String name)
+    {
+        for(int idx = 0; idx < UserList.size(); ++idx)
+        {
+            if (UserList.elementAt(idx).sName.equals(name))
+                return true;
+        }
+        return false;
+    }
+    //处理客户端发送过来的消息
+    public static int StrDivide(String str)
+    {
+        //若发来只有getcourse，不能处理
+        StringTokenizer inFromClient = new StringTokenizer(str," ");
+        String  Command = inFromClient.nextToken();
+        if(Command.equals("getcourse") || Command.equals("GETCOURSE"))
+            return 1;
+        if(Command.equals("setcourse")|| Command.equals("SETCOURSE"))
+            return 2;
+        if(Command.equals("shutdown")|| Command.equals("SHUTDOWN"))
+            return 3;
+        return -1;
+    }//ServRes
+}//Server
+class User_Info //用于记录选课信息
+{
+    public String sName;//用户名
+    public String []  sCourse;//课程数组
+    public  final static int MaxCourseNum = 10;//最大选课数目
+    public int courseNum;
+    User_Info(String name)
+    {
+        sCourse = new String[MaxCourseNum];
+        sName = name;
+        courseNum = 0;
+    }
+}//User_Info
